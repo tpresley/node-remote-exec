@@ -19,8 +19,8 @@ hosts can be a string, an array of strings, or an array of objects
 if hosts is an array of objects, the **name** key of each object will be used to connect to the host
 
 ### commands
-commands can be a string or an array of strings
-commands can contain parameters (see below)
+commands can be a string or an array of strings   
+commands can also contain parameters using the {{myParameter}} syntax (see below)
 
 ### options
 options is the connection options object used for [ssh2](https://github.com/mscdex/ssh2) with the following additions:
