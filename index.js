@@ -6,13 +6,13 @@ function RemoteExec(hosts, commands, options, cb) {
     , stderr = process.stderr;
 
   // return an error if no hosts were specified
-  if (!hosts || !(hosts instanceof String || hosts instanceof Array)) return cb(new Error('No hosts specified'));
+  if (!hosts || !(typeof hosts === 'string' || hosts instanceof Array)) return cb(new Error('No hosts specified'));
   // array-ify hosts if necessary
-  if (hosts instanceof String) hosts = [hosts];
+  if (typeof hosts === 'string') hosts = [hosts];
   // return an error if no commands were specified
-  if (!commands || !(commands instanceof String || commands instanceof Array)) return cb(new Error('No commands specified'));
+  if (!commands || !(typeof commands === 'string' || commands instanceof Array)) return cb(new Error('No commands specified'));
   // array-ify commands if necessary
-  if (commands instanceof String) commands = [commands];
+  if (typeof commands === 'string') commands = [commands];
   
   // if 3rd arg (options) is a function, assume the user skipped the options and specified the callback
   if (options instanceof Function) {
@@ -40,12 +40,27 @@ function RemoteExec(hosts, commands, options, cb) {
   }
 
   function doHost(host, done) {
+    if (!(typeof host === 'string' || host.name)) done(new Error('Invalid Host'));
+    if (typeof host === 'string') host = {name: host, host: host};
+    
+    // scoop up any parameters for substitution into commands
+    var params = {}, param;
+    if (options.params && options.params.hasOwnProperty) {
+      for (param in options.params) {
+        params[param] = String(options.params[param]);
+      }
+    }
+    for (param in host) {
+      if (host.hasOwnProperty(param)) {
+        params[param] = String(host[param]);
+      }
+    }
     // grab a new connection object
     var connection = new Ssh();
     
     function connect(done) {
       // attach event listeners and start the connection
-      options.host = host;
+      options.host = host.name;
       connection.on('ready', done);
       connection.on('error', done);
       connection.connect(options);
@@ -64,6 +79,17 @@ function RemoteExec(hosts, commands, options, cb) {
         command = command + '; exit 0';
       }
 
+      // substitute parameters into the final command
+      var param;
+      for (param in params) {
+        command = command.replace(new RegExp('{{' + param + '}}'), params[param]);
+      }
+
+      var missingParam
+      if (missingParam = /{{[a-zA-Z0-9_]+}}/.exec(command)) {
+        done(new Error('Missing parameter: ' + missingParam[0]));
+      }
+
       // run the current command
       connection.exec(command, function(err, stream){
         if (err) done(err);
@@ -77,9 +103,9 @@ function RemoteExec(hosts, commands, options, cb) {
         stream.on('exit', function(code, signal){
           var err;
           if (code !== 0) {
-            err = new Error(host + ' : ' + command + ' [Exit ' + code + ']');
+            err = new Error(host.name + ' : ' + command + ' [Exit ' + code + ']');
           }
-          done(err);
+          done();
         });
 
       });

@@ -1,6 +1,6 @@
 {
   "name": "remote-exec",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Execute shell commands on one or more remote computers via SSH",
   "main": "index.js",
   "scripts": {
@@ -24,5 +24,9 @@
   "dependencies": {
     "ssh2": "~0.2.14",
     "async": "~0.2.9"
-  }
+  },
+  "files": [
+    "index.js",
+    "LICENSE"
+  ]
 }
