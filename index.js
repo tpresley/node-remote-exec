@@ -110,7 +110,7 @@ function RemoteExec(hosts, commands, options, cb) {
           if (code !== 0) {
             err = new Error(host.name + ' : ' + command + ' [Exit ' + code + ']');
           }
-          done();
+          done(err);
         });
 
       });
@@ -120,7 +120,13 @@ function RemoteExec(hosts, commands, options, cb) {
     // 2: run each command
     async.series([ connect, runCommands ], function(err) {
       // close the connection
-      connection.end(); 
+      connection.end();
+
+      // run afterEach callback for each host (if set)
+      if (options.afterEach && typeof options.afterEach === 'function') {
+        options.afterEach(host, commands, params, err);
+      }
+
       done(err);
     });
   }
