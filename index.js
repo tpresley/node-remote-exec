@@ -67,6 +67,11 @@ function RemoteExec(hosts, commands, options, cb) {
     }
 
     function runCommands(done) {
+      // run beforeEach callback for each host (if set)
+      if (options.beforeEach && typeof options.beforeEach === 'function') {
+        options.beforeEach(host, commands, params);
+      }
+
       // run each command in series
       async.eachSeries(commands, runCommand, done);
     }

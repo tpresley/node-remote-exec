@@ -1,6 +1,6 @@
 {
   "name": "remote-exec",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Execute shell commands on one or more remote computers via SSH",
   "main": "index.js",
   "scripts": {

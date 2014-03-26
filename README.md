@@ -25,6 +25,7 @@ commands can also contain parameters using the {{myParameter}} syntax (see below
 ### options
 options is the connection options object used for [ssh2](https://github.com/mscdex/ssh2) with the following additions:
 - the **params** key takes an object declaring global/default values for parameters used in commands
+- the **beforeEach** key takes a callback function run for each host before commands are run (passed host, commands, and params objecs)
 - **stdout** and/or **stderr** can be specified to change where output from the remote hosts is sent
 
 ## examples
